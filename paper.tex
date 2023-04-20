@@ -1,0 +1,157 @@
+\documentclass{article}
+
+\author{Suman Chapai}
+\title{Rate Limiter - CS 492 Proposal}
+
+%
+% Packages
+%
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt
+]{biblatex}
+\addbibresource{ref.bib}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{hyperref}
+
+
+
+
+%
+% Macros
+%
+\newcommand*{\Z}[0]{\mathbb{Z}}
+
+
+
+\begin{document}
+\maketitle
+
+
+
+%
+% Intro
+%
+\section{Introduction}
+We propose building a programmable rate limiter as part of CS 492 to be
+completed in the fall of 2023. The rate limiter will accept incoming connections
+and forward requests to one or more servers if the requests get filtered through
+the specified filtering configuration (based on Application and IP layer).
+Packets corresponding to requests that don't pass through the filter will be
+dropped. In this document, we outline proposed functionalities and timeline.
+
+
+%
+% Definitions
+%
+\section{Definitions}
+\begin{enumerate}
+    \item
+          \textbf{Filter} and other tense forms of the verb connote whether a
+          request is filtered through (meaning accepted) or filtered out
+          (meaning rejected) by the rate limiter.
+    \item
+          \textbf{Ursa} roughly pronounced as \textit{woor-sa} may be used
+          interchangeably with the noun phrase \textbf{rate limiter} and denotes
+          the proposed rate limiter server described herein.
+    \item
+          \textbf{Upstream} denotes the server(s) sitting behind the rate limiter.
+          Envoy \cite{envoy} was taken as a reference for this terminology.
+\end{enumerate}
+
+%
+% Non Functional Requirements
+%
+\section{Functional Requirements}
+
+
+\subsection{HTTP Filtering}
+\begin{enumerate}
+    \item
+          Read HTTP headers, modify/add HTTP headers before sending request upstream.
+    \item
+          Retrieve the number of of request based on given parameter for example
+          HTTP header field or IPv4 or IPv6 address in the last $x$ seconds where
+          $0 < x < k$ for some $k \in \Z$.
+    \item
+          Allow to define configuration specifications above in a configuration file.
+    \item
+          Filter based on configuration.
+    \item
+          Log requests and their filtering status.
+\end{enumerate}
+
+
+%
+% Non Functional Requirements
+%
+\section{Non-Functional Requirements}
+\begin{enumerate}
+    \item
+          Construct a type-safe domain language to define Ursa configuration.
+    \item
+          In addition to in-memory database that Ursa uses by default, allow users to
+          specify a persistent database.
+    \item
+          Expose API to update configuration used by Ursa.
+\end{enumerate}
+
+%
+% Timeline
+%
+\section{Timeline}
+\begin{tabular}{||m{2cm} | m{10cm} ||}
+    \hline
+    Deadline     & Goal                                                                                           \\
+    \hline \hline
+    Apr 30       & Finalize language, submit proposal draft                                                       \\
+    \hline
+    May 30       & Complete minimal Go server to receive/forward requests (in-memory DB, hardcoded configuration) \\
+    \hline
+    June 7       & Make it possible to use yaml based configuration                                               \\
+    \hline
+    June 30      & Explore possibilities of domain specific language to define configuration                      \\
+    \hline
+    July 30      & Complete server functionalities                                                                \\
+    \hline
+    August 30    & Write integration tests                                                                        \\
+    \hline
+    September 7  & Support docker. Publish docker image running Ursa.                                                                   \\
+    \hline
+    September 30 & Setup load testing environment to note benchmarks                                           \\
+    \hline
+    October 30   & Work on domain specific language for defining configuration                                             \\
+    \hline
+    November 30  & Create and publish documentation                                                               \\
+    \hline
+\end{tabular}
+
+
+%
+% 
+%
+\section{Technical Specifications}
+We plan on writing the Ursa server in \textit{Go}. Code will be hosted on
+in the \href{https://github.com/ursaserver}{usraserver github}.
+
+%
+% Related Work
+%
+\section{Related Work}
+A rate limiter server is a part of API gateway of most, if not every, large
+company as it is one of the primary mitigation measures against DOS and DDOS
+attacks.
+
+We have found two systems in the internet today that we will use as examples
+when building Ursa: Envoy \cite{envoy} is a proxy server written in \textit{C++}
+that has tons of features including Application layer and IP layer rate
+limiting. Another example we will look at is Varnish \cite{varnish} that is a
+caching proxy whose caching behavior can be defined using a Varnish specific
+configuration language called Varnish Configuration Language (VCL).  We will
+look at VCL for reference when implementing the configuration language for Ursa.
+
+\printbibliography
+
+\end{document}
